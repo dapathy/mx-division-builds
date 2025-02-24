@@ -26,6 +26,7 @@
 			>
 				<span class="ttk-weapon-name">{{ tablesData.weaponName }}</span>
 				<div class="ttk-tables">
+					<!-- TODO: this will probably need to be rewritten -->
 					<ResponsiveTable
 						v-for="(tables, idx) in tablesData.tables"
 						v-bind:key="idx"
@@ -33,6 +34,7 @@
 						:headers="tables.headers"
 						:rowData="tables.rowData"
 					></ResponsiveTable>
+					<!-- TOOO: consider putting graph here -->
 				</div>
 			</div>
 		</template>

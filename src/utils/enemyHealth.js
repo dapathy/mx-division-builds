@@ -45,13 +45,14 @@ const groupScaling = [
 	}
 ]
 
-function calculateHealthAndArmor() {
-
-
+export default function calculateHealthAndArmor(enemyType, difficulty, groupSize) {
+	const base = baseStats[enemyType];
+	const scaling = difficultyScaling[difficulty];
+	const group = groupScaling[groupSize];
+	const health = base.health * scaling * group[enemyType];
+	const armor = base.armor * scaling * group[enemyType];
 	return {
-		health: 0,
-		armor: 0
-	}
+		health,
+		armor
+	};
 }
-
-export default calculateHealthAndArmor;

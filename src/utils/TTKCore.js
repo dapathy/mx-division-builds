@@ -1,7 +1,7 @@
 import { BehaviorSubject, combineLatest, timer } from "rxjs";
 import { debounce } from "rxjs/operators";
 import StatsService from "./statsService";
-import enemyHealthByPlayerScaling from "./enemyHealth";
+import calculateHealthAndArmor from "./enemyHealth";
 
 class DPSChartCoreService {
 	_subjects = {
@@ -18,28 +18,32 @@ class DPSChartCoreService {
 		]).pipe(debounce(() => timer(300)));
 	}
 
+	// TODO: somewhere we'll need to be able to run this multiple times to get a sampling
 	addCoreWeaponData(slot, weaponStats) {
 		if (weaponStats.weaponName == null) {
 			this._subjects[slot].next(undefined);
 			return;
 		}
 
+		const headers = ["   ", "Normal", "Veteran", "Elite"];
+		const enemyTypes = ["normal", "veteran", "elite"];
+		const difficulties = ["normal", "hard", "challenging", "heroic"];
 		const weaponTTKData = [];
-		for (let i = 0; i < enemyHealthByPlayerScaling.length; i++) {
-			// const playerScaling = enemyHealthByPlayerScaling[i];
-			const playerScalingData = enemyHealthByPlayerScaling[i];
-			const headers = ["   ", "Normal", "Veteran", "Elite", "Named"];
-			const enemyTypes = ["Normal", "Veteran", "Elite", "Named"];
+		const maxGroupSize = 4;
+		for (let i = 0; i < maxGroupSize; i++) {
 			const rowData = [];
-			for (const difficulty in playerScalingData) {
-				// Row Name is first in current Row
+			for (const difficulty of difficulties) {
+				// TODO: figure out new model for row data.  TTK component uses this directly
 				const currentRow = [difficulty];
-				const currentScaling = playerScalingData[difficulty];
-				for (let j = 0; j < enemyTypes.length; j++) {
-					// Get the ratio for the current enemytype
-					const ratio = currentScaling.Ratio[j];
-					// const enemyType = enemyTypes[j];
-					const enemyHP = currentScaling.RedHP * ratio;
+				for (let enemyType of enemyTypes) {
+					const enemyStats = calculateHealthAndArmor(
+						enemyType,
+						difficulty,
+						i
+					);
+					const enemyHp = enemyStats.health;
+					const enemyArmor = enemyStats.armor;
+					
 					const results = this.recursiveTimeToKillBulletToKill(
 						weaponStats,
 						enemyHP
@@ -60,7 +64,7 @@ class DPSChartCoreService {
 		});
 	}
 
-	// Reduce enemyHP untill it's 0
+	// TODO: rewrite this to use armor
 	recursiveTimeToKillBulletToKill(
 		weaponStats,
 		enemyHP,
