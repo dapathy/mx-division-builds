@@ -1,76 +1,57 @@
-const HPValues = [
-	{
-		Normal: {
-			RedHP: 796347,
-			Ratio: [1, 2.25, 3.5, 7],
-		},
-		Hard: {
-			RedHP: 1274155,
-			Ratio: [1, 2.25, 3.5, 7],
-		},
-		Challenging: {
-			RedHP: 1831598,
-			Ratio: [1, 2.25, 3.5, 7],
-		},
-		Heroic: {
-			RedHP: 2588127,
-			Ratio: [1, 2.25, 3.5, 7],
-		},
+const baseStats = {
+	normal: {
+		health: 796347,
+		armor: 0,
 	},
-	{
-		Normal: {
-			RedHP: 971543,
-			Ratio: [1, 2.31, 3.73, 8.03],
-		},
-		Hard: {
-			RedHP: 1554469,
-			Ratio: [1, 2.31, 3.73, 8.03],
-		},
-		Challenging: {
-			RedHP: 2234550,
-			Ratio: [1, 2.31, 3.73, 8.03],
-		},
-		Heroic: {
-			RedHP: 3157515,
-			Ratio: [1, 2.31, 3.73, 8.03],
-		},
+	veteran: {
+		health: 796347,
+		armor: 995433
 	},
-	{
-		Normal: {
-			RedHP: 1186557,
-			Ratio: [1, 2.38, 3.97, 9.21],
-		},
-		Hard: {
-			RedHP: 1898491,
-			Ratio: [1, 2.38, 3.97, 9.21],
-		},
-		Challenging: {
-			RedHP: 2729081,
-			Ratio: [1, 2.38, 3.97, 9.21],
-		},
-		Heroic: {
-			RedHP: 3856309,
-			Ratio: [1, 2.38, 3.97, 9.21],
-		},
-	},
-	{
-		Normal: {
-			RedHP: 1449352,
-			Ratio: [1, 2.44, 4.23, 10.63],
-		},
-		Hard: {
-			RedHP: 2318962,
-			Ratio: [1, 2.44, 4.23, 10.63],
-		},
-		Challenging: {
-			RedHP: 3333508,
-			Ratio: [1, 2.44, 4.23, 10.63],
-		},
-		Heroic: {
-			RedHP: 4710392,
-			Ratio: [1, 2.44, 4.23, 10.63],
-		},
-	},
-];
+	elite: {
+		health: 796347,
+		armor: 1990868,
+	}
+}
 
-export default HPValues;
+const difficultyScaling = {
+	normal: 1,
+	hard: 1.55,
+	challenging: 2.1,
+	heroic: 3.55,
+	legendary: 3.9,
+}
+
+// index is the number of players in the group - 1
+const groupScaling = [
+	{
+		normal: 1,
+		veteran: 1,
+		elite: 1
+	},
+	{
+		normal: 1.2,
+		veteran: 1.2,
+		elite: 1.271
+	},
+	{
+		normal: 1.44,
+		veteran: 1.418,
+		elite: 1.483
+	},
+	{
+		normal: 1.73,
+		veteran: 1.658,
+		elite: 1.709
+	}
+]
+
+function calculateHealthAndArmor() {
+
+
+	return {
+		health: 0,
+		armor: 0
+	}
+}
+
+export default calculateHealthAndArmor;
