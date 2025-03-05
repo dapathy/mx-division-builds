@@ -46,7 +46,8 @@ class DPSChartCoreService {
 					
 					const results = this.recursiveTimeToKillBulletToKill(
 						weaponStats,
-						enemyHP
+						enemyHp,
+						enemyArmor
 					);
 					currentRow.push(
 						`${results.timePassed.toFixed(
@@ -64,46 +65,66 @@ class DPSChartCoreService {
 		});
 	}
 
-	// TODO: rewrite this to use armor
+	// TODO: update this to use critical hit change and critical hit damage
 	recursiveTimeToKillBulletToKill(
 		weaponStats,
 		enemyHP,
+		enemyArmor,
 		shotsFired = 0,
 		timePassed = 0,
 		reloads = 0
 	) {
-		if (enemyHP <= weaponStats.dmgToOutOfCoverArmoredPerMag) {
-			if (enemyHP == weaponStats.dmgToOutOfCoverArmoredPerMag) {
-				// return calculations with out counting bullets to kill and just return mag size
-			} else {
-				shotsFired += Math.ceil(
-					enemyHP / weaponStats.dmgToOutOfCoverArmored
-				);
-				// -1 because the first shot should always show 0s on the TTK
-				timePassed +=
-					(shotsFired / (weaponStats.rpm / 60) -
-						1 / (weaponStats.rpm / 60)) *
-					1000;
-				timePassed = timePassed / 1000;
+		const { dmgToOutOfCover, dmgToOutOfCoverArmored, totalMagSize, reloadSpeed, rpm } = weaponStats;
+		const fireRate = rpm / 60;
+	
+		if (enemyArmor > 0) {
+			const shotsToDepleteArmor = Math.ceil(enemyArmor / dmgToOutOfCoverArmored);
+			const shotsRemainingInMag = totalMagSize - (shotsFired % totalMagSize);
+			const shotsToFire = Math.min(shotsToDepleteArmor, shotsRemainingInMag);
+			const timeToFire = shotsToFire / fireRate;
+	
+			enemyArmor -= shotsToFire * dmgToOutOfCoverArmored;
+			shotsFired += shotsToFire;
+			timePassed += timeToFire;
+	
+			if (shotsToFire < shotsToDepleteArmor) {
+				reloads++;
+				timePassed += reloadSpeed;
 			}
-			return {
-				shotsFired,
-				timePassed,
-				reloads,
-			};
-		} else {
-			const remaningHP =
-				enemyHP - weaponStats.dmgToOutOfCoverArmoredPerMag;
-			shotsFired += weaponStats.totalMagSize;
-			timePassed +=
-				weaponStats.timeToEmptyMagazine + weaponStats.reloadSpeed;
+	
 			return this.recursiveTimeToKillBulletToKill(
 				weaponStats,
-				remaningHP,
+				enemyHP,
+				enemyArmor,
 				shotsFired,
 				timePassed,
-				reloads + 1
+				reloads
 			);
+		} else if (enemyHP > 0) {
+			const shotsToDepleteHP = Math.ceil(enemyHP / dmgToOutOfCover);
+			const shotsRemainingInMag = totalMagSize - (shotsFired % totalMagSize);
+			const shotsToFire = Math.min(shotsToDepleteHP, shotsRemainingInMag);
+			const timeToFire = shotsToFire / fireRate;
+	
+			enemyHP -= shotsToFire * dmgToOutOfCover;
+			shotsFired += shotsToFire;
+			timePassed += timeToFire;
+	
+			if (shotsToFire < shotsToDepleteHP) {
+				reloads++;
+				timePassed += reloadSpeed;
+			}
+	
+			return this.recursiveTimeToKillBulletToKill(
+				weaponStats,
+				enemyHP,
+				enemyArmor,
+				shotsFired,
+				timePassed,
+				reloads
+			);
+		} else {
+			return { shotsFired, timePassed, reloads };
 		}
 	}
 
