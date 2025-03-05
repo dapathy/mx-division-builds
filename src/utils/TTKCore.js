@@ -44,7 +44,7 @@ class DPSChartCoreService {
 					const enemyHp = enemyStats.health;
 					const enemyArmor = enemyStats.armor;
 					
-					const results = this.recursiveTimeToKillBulletToKill(
+					const results = this.calculateTimeToKillBulletToKill(
 						weaponStats,
 						enemyHp,
 						enemyArmor
@@ -65,73 +65,46 @@ class DPSChartCoreService {
 		});
 	}
 
-	// TODO: update this to use critical hit change and critical hit damage
-	// going to need to loop and calculate damage for each shot
-	recursiveTimeToKillBulletToKill(
+	// TODO: verify this
+	calculateTimeToKillBulletToKill(
 		weaponStats,
 		enemyHP,
-		enemyArmor,
-		shotsFired = 0,
-		timePassed = 0,
-		reloads = 0
+		enemyArmor
 	) {
 		const { dmgToOutOfCover, dmgToOutOfCoverArmored, totalMagSize, reloadSpeed, rpm, chc, chd } = weaponStats;
 		const fireRate = rpm / 60;
+		let shotsFired = 0, timePassed = 0, reloads = 0;
+		let currentMagSize = totalMagSize;
 	
 		const calculateDamage = (baseDamage) => {
-			const isCriticalHit = Math.random() < chc;	// are my units correct here?
-			return isCriticalHit ? baseDamage * + chd : baseDamage;
+			const isCriticalHit = Math.random() < chc;
+			return isCriticalHit ? baseDamage + chd : baseDamage;
 		};
-
-		if (enemyArmor > 0) {
-			const shotsToDepleteArmor = Math.ceil(enemyArmor / dmgToOutOfCoverArmored);
-			const shotsRemainingInMag = totalMagSize - (shotsFired % totalMagSize);
-			const shotsToFire = Math.min(shotsToDepleteArmor, shotsRemainingInMag);
-			const timeToFire = shotsToFire / fireRate;
 	
-			enemyArmor -= shotsToFire * dmgToOutOfCoverArmored;
-			shotsFired += shotsToFire;
-			timePassed += timeToFire;
-	
-			if (shotsToFire < shotsToDepleteArmor) {
+		while (enemyArmor > 0 || enemyHP > 0) {
+			if (currentMagSize === 0) {
 				reloads++;
 				timePassed += reloadSpeed;
+				currentMagSize = totalMagSize;
 			}
 	
-			return this.recursiveTimeToKillBulletToKill(
-				weaponStats,
-				enemyHP,
-				enemyArmor,
-				shotsFired,
-				timePassed,
-				reloads
-			);
-		} else if (enemyHP > 0) {
-			const shotsToDepleteHP = Math.ceil(enemyHP / dmgToOutOfCover);
-			const shotsRemainingInMag = totalMagSize - (shotsFired % totalMagSize);
-			const shotsToFire = Math.min(shotsToDepleteHP, shotsRemainingInMag);
-			const timeToFire = shotsToFire / fireRate;
-	
-			enemyHP -= shotsToFire * dmgToOutOfCover;
-			shotsFired += shotsToFire;
-			timePassed += timeToFire;
-	
-			if (shotsToFire < shotsToDepleteHP) {
-				reloads++;
-				timePassed += reloadSpeed;
+			const damage = enemyArmor > 0 ? calculateDamage(dmgToOutOfCoverArmored) : calculateDamage(dmgToOutOfCover);
+			if (enemyArmor > 0) {
+				enemyArmor -= damage;
+				if (enemyArmor < 0) {
+					enemyHP += enemyArmor; // carry over remaining damage to HP
+					enemyArmor = 0;
+				}
+			} else {
+				enemyHP -= damage;
 			}
 	
-			return this.recursiveTimeToKillBulletToKill(
-				weaponStats,
-				enemyHP,
-				enemyArmor,
-				shotsFired,
-				timePassed,
-				reloads
-			);
-		} else {
-			return { shotsFired, timePassed, reloads };
+			shotsFired++;
+			currentMagSize--;
+			timePassed += 1 / fireRate;
 		}
+	
+		return { shotsFired, timePassed, reloads };
 	}
 
 	applyCHCandHSDtoTheTables(chc, hsd) {
