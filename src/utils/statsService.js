@@ -329,13 +329,14 @@ class StatsService {
 			genericWeaponDamage
 		);
 
-		weaponStats.weaponDamage = this.addCHDAndOrHSDOnTopOfFlatDamage(
-			weaponStats.weaponDamage,
-			weaponStats.chd,
-			weaponStats.hsd,
-			headshotChance,
-			manualCriticalChance
-		);
+		// TODO: maybe keep the headshotChange, but remove the manualCriticalChance since we'll use weapon stats
+		// weaponStats.weaponDamage = this.addCHDAndOrHSDOnTopOfFlatDamage(
+		// 	weaponStats.weaponDamage,
+		// 	weaponStats.chd,
+		// 	weaponStats.hsd,
+		// 	headshotChance,
+		// 	manualCriticalChance
+		// );
 
 		weaponStats.dta = this.getStatValueFromGunAndGear(
 			weaponCore2,

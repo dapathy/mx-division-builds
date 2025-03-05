@@ -66,6 +66,7 @@ class DPSChartCoreService {
 	}
 
 	// TODO: update this to use critical hit change and critical hit damage
+	// going to need to loop and calculate damage for each shot
 	recursiveTimeToKillBulletToKill(
 		weaponStats,
 		enemyHP,
@@ -74,9 +75,14 @@ class DPSChartCoreService {
 		timePassed = 0,
 		reloads = 0
 	) {
-		const { dmgToOutOfCover, dmgToOutOfCoverArmored, totalMagSize, reloadSpeed, rpm } = weaponStats;
+		const { dmgToOutOfCover, dmgToOutOfCoverArmored, totalMagSize, reloadSpeed, rpm, chc, chd } = weaponStats;
 		const fireRate = rpm / 60;
 	
+		const calculateDamage = (baseDamage) => {
+			const isCriticalHit = Math.random() < chc;	// are my units correct here?
+			return isCriticalHit ? baseDamage * + chd : baseDamage;
+		};
+
 		if (enemyArmor > 0) {
 			const shotsToDepleteArmor = Math.ceil(enemyArmor / dmgToOutOfCoverArmored);
 			const shotsRemainingInMag = totalMagSize - (shotsFired % totalMagSize);
