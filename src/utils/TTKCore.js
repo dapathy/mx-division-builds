@@ -33,7 +33,7 @@ class DPSChartCoreService {
 		for (let i = 0; i < maxGroupSize; i++) {
 			const rowData = [];
 			for (const difficulty of difficulties) {
-				// TODO: figure out new model for row data.  TTK component uses this directly
+				// Row Name is first in current Row
 				const currentRow = [difficulty];
 				for (let enemyType of enemyTypes) {
 					const enemyStats = calculateHealthAndArmor(
@@ -77,7 +77,8 @@ class DPSChartCoreService {
 		let currentMagSize = totalMagSize;
 	
 		const calculateDamage = (baseDamage) => {
-			const isCriticalHit = Math.random() < chc;
+			const randomPercentage = Math.random() * 100; // Convert to a percentage
+			const isCriticalHit = randomPercentage < chc;
 			return isCriticalHit ? baseDamage + chd : baseDamage;
 		};
 	
