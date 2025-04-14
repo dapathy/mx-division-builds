@@ -65,11 +65,11 @@ class DPSChartCoreService {
 		});
 	}
 
-	// TODO: verify this
 	calculateTimeToKillBulletToKill(
 		weaponStats,
 		enemyHP,
-		enemyArmor
+		enemyArmor,
+		calculateAverageDamage = false
 	) {
 		const { dmgToOutOfCover, dmgToOutOfCoverArmored, totalMagSize, reloadSpeed, rpm, chc, chd } = weaponStats;
 		const fireRate = rpm / 60;
@@ -77,6 +77,10 @@ class DPSChartCoreService {
 		let currentMagSize = totalMagSize;
 	
 		const calculateDamage = (baseDamage) => {
+			if (calculateAverageDamage) {
+				return baseDamage * (1 - chc) + (baseDamage + chd) * chc;
+			}
+
 			const randomPercentage = Math.random() * 100; // Convert to a percentage
 			const isCriticalHit = randomPercentage < chc;
 			return isCriticalHit ? baseDamage + chd : baseDamage;

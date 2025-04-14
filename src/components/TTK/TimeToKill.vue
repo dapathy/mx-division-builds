@@ -62,6 +62,8 @@
 		created() {
 			TTKCoreService.subscribeToCoreWeaponData().subscribe(
 				(tableData) => {
+					// TODO: look at this
+					// maybe call ttkcore service directory multiple times 
 					this.updateTables(tableData);
 					if (this.isCHCandHSDSet()) {
 						this.applyCHCandHSDtoTheTables();
