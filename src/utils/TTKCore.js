@@ -36,18 +36,12 @@ class DPSChartCoreService {
 				// Row Name is first in current Row
 				const currentRow = [difficulty];
 				for (let enemyType of enemyTypes) {
-					const enemyStats = calculateHealthAndArmor(
+				
+					const results = this.calculateTimeToKillBulletToKill(
+						weaponStats,
 						enemyType,
 						difficulty,
 						i
-					);
-					const enemyHp = enemyStats.health;
-					const enemyArmor = enemyStats.armor;
-					
-					const results = this.calculateTimeToKillBulletToKill(
-						weaponStats,
-						enemyHp,
-						enemyArmor
 					);
 					currentRow.push(
 						`${results.timePassed.toFixed(
@@ -67,10 +61,19 @@ class DPSChartCoreService {
 
 	calculateTimeToKillBulletToKill(
 		weaponStats,
-		enemyHP,
-		enemyArmor,
+		enemyType,
+		difficulty,
+		groupSize,
 		calculateAverageDamage = false
 	) {
+		const enemyStats = calculateHealthAndArmor(
+			enemyType,
+			difficulty,
+			groupSize
+		);
+		let enemyHP = enemyStats.health;
+		let enemyArmor = enemyStats.armor;
+
 		const { dmgToOutOfCover, dmgToOutOfCoverArmored, totalMagSize, reloadSpeed, rpm, chc, chd } = weaponStats;
 		const fireRate = rpm / 60;
 		let shotsFired = 0, timePassed = 0, reloads = 0;
