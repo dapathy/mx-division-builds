@@ -3,13 +3,6 @@
 		<span class="section-title"> Time To Kill / Bullets to Kill </span>
 		<div class="toolbar">
 			<StatInputV2
-				:label="'Critical chance'"
-				v-model="criticalChance"
-				v-bind:max="100"
-				:showMaxVal="true"
-				@input="applyCHCandHSDtoTheTables()"
-			></StatInputV2>
-			<StatInputV2
 				:label="'Headshot Chance'"
 				v-model="headshotChance"
 				v-bind:max="100"
@@ -55,7 +48,6 @@
 		data() {
 			return {
 				data: [],
-				criticalChance: 0,
 				headshotChance: 0,
 			};
 		},
@@ -65,8 +57,8 @@
 					// TODO: look at this
 					// maybe call ttkcore service directory multiple times 
 					this.updateTables(tableData);
-					if (this.isCHCandHSDSet()) {
-						this.applyCHCandHSDtoTheTables();
+					if (this.isHSDSet()) {
+						this.applyHSDtoTheTables();
 					}
 				}
 			);
@@ -76,14 +68,14 @@
 				// I need to come up with a better name with this variable
 				this.data = data;
 			},
-			applyCHCandHSDtoTheTables() {
+			applyHSDtoTheTables() {
 				TTKCoreService.applyCHCandHSDtoTheTables(
-					this.criticalChance,
+					0,
 					this.headshotChance
 				);
 			},
-			isCHCandHSDSet() {
-				return this.criticalChance !== 0 || this.headshotChance !== 0;
+			isHSDSet() {
+				return this.headshotChance !== 0;
 			},
 		},
 	};
