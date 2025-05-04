@@ -81,12 +81,12 @@ class DPSChartCoreService {
 	
 		const calculateDamage = (baseDamage) => {
 			if (calculateAverageDamage) {
-				return baseDamage * (1 - chc) + (baseDamage + chd) * chc;
+				return baseDamage * (1 - chc) + baseDamage * (1 + chd / 100) * chc;
 			}
 
 			const randomPercentage = Math.random() * 100; // Convert to a percentage
 			const isCriticalHit = randomPercentage < chc;
-			return isCriticalHit ? baseDamage + chd : baseDamage;
+			return isCriticalHit ? baseDamage * (1 + chd / 100)  : baseDamage;
 		};
 	
 		while (enemyArmor > 0 || enemyHP > 0) {
