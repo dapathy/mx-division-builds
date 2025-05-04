@@ -18,7 +18,6 @@ class DPSChartCoreService {
 		]).pipe(debounce(() => timer(300)));
 	}
 
-	// TODO: somewhere we'll need to be able to run this multiple times to get a sampling
 	addCoreWeaponData(slot, weaponStats) {
 		if (weaponStats.weaponName == null) {
 			this._subjects[slot].next(undefined);
@@ -41,7 +40,8 @@ class DPSChartCoreService {
 						weaponStats,
 						enemyType,
 						difficulty,
-						i
+						i,
+						true
 					);
 					currentRow.push(
 						`${results.timePassed.toFixed(

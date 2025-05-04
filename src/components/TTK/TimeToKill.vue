@@ -31,6 +31,7 @@
 				</div>
 			</div>
 		</template>
+		<div id="ttk-chart"></div>
 	</div>
 </template>
 
@@ -38,6 +39,20 @@
 	import ResponsiveTable from "./ResponsiveTable";
 	import TTKCoreService from "../../utils/TTKCore";
 	import StatInputV2 from "../generic/StatInputV2";
+	import Plotly from "plotly.js-dist";
+	import {
+		getPlotlyDefault1,
+		getPlotlyDefault2,
+	} from "../../utils/plotDefaults";
+	import StatsService from "../../utils/statsService";
+	import { UI_WEAPON_SLOT_ENUM } from "../../utils/utils";
+
+
+	const DEFAULT_PLOT = getPlotlyDefault1(
+		"Rounds",
+		"Seconds"
+	);
+	const DEFAULT_PLOT_2 = getPlotlyDefault2();
 
 	export default {
 		name: "TimeToKill",
@@ -49,6 +64,7 @@
 			return {
 				data: [],
 				headshotChance: 0,
+				target: null,
 			};
 		},
 		created() {
@@ -63,10 +79,47 @@
 				}
 			);
 		},
+		mounted() {
+			this.target = document.getElementById("ttk-chart");
+			Plotly.newPlot(this.target, [], DEFAULT_PLOT, DEFAULT_PLOT_2);
+		},
 		methods: {
 			updateTables(data) {
 				// I need to come up with a better name with this variable
 				this.data = data;
+				const chartData = [];
+
+				for (let i = 0; i < data.length; i++) {
+					const weapon = data[i];
+					if (!weapon) continue;
+
+					const stats = StatsService.getWeaponStatsPerSlot(UI_WEAPON_SLOT_ENUM[0], 0, 0);
+					const results = [];
+					for (let j = 0; j < 50; j++) {
+						// TODO: configure enemy type and difficulty
+						const result = TTKCoreService.calculateTimeToKillBulletToKill(stats, "elite", "heroic", 0, false);
+						results.push(result);
+					}
+
+					const trace = {
+						x: results.map((result) => result.shotsFired),
+						y: results.map((result) => result.timePassed),
+						type: "scatter",
+						mode: "markers",
+						// marker: {
+						// 	color: "#E69F00",
+						// 	size: 10,
+						// },
+					};
+					chartData.push(trace);
+				}
+				
+				Plotly.react(
+					this.target,
+					chartData,
+					DEFAULT_PLOT,
+					DEFAULT_PLOT_2
+				);
 			},
 			applyHSDtoTheTables() {
 				TTKCoreService.applyCHCandHSDtoTheTables(
